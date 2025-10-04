@@ -18,7 +18,7 @@ export const verifyJWT = asyncHandler(async (req, _, next) => {
 
     const user = await userRepository.findOne({
       where: { id: decodedToken.id }, // decodedToken.id comes from jwt
-      select: ["id", "username", "email", "fullName"], // exclude password & refreshToken
+      select: ["id", "username", "email"], // exclude password & refreshToken
     });
 
     if (!user) {

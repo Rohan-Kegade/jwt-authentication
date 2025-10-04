@@ -25,7 +25,7 @@ const generateTokens = async (user) => {
 export const userService = {
   // REGISTER
   async registerUser(req) {
-    const { fullName, email, username, password } = req.body;
+    const { email, username, password } = req.body;
 
     if ([email, username, password].some((f) => f?.trim() === "")) {
       throw new ApiError(400, "All fields are required");
@@ -42,7 +42,6 @@ export const userService = {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = userRepository.create({
-      fullName: fullName || username, // fallback if no full name
       email,
       username: username.toLowerCase(),
       password: hashedPassword,

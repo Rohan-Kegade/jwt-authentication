@@ -14,12 +14,22 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("/api/login", form);
-      if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
+      const res = await axios.post("/api/v1/users/login", form, {
+        withCredentials: true, // if backend sets HttpOnly cookies
+      });
+
+      const accessToken = res.data?.data?.accessToken;
+      const user = res.data?.data?.user;
+
+      if (accessToken && user) {
+        // Store token and user info
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("user", JSON.stringify(user));
+
+        // Navigate to dashboard
         navigate("/dashboard");
       } else {
-        setError("No token returned from server");
+        setError("Login failed: No token returned");
       }
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
@@ -41,6 +51,7 @@ export default function Login() {
             required
           />
         </Form.Group>
+
         <Form.Group className="mb-3">
           <Form.Label>Password</Form.Label>
           <Form.Control
@@ -50,6 +61,7 @@ export default function Login() {
             required
           />
         </Form.Group>
+
         <Button type="submit">Login</Button>
       </Form>
     </Container>

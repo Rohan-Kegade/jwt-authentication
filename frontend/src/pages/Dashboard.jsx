@@ -3,45 +3,40 @@ import { Button, Container, Alert } from "react-bootstrap";
 import axios from "axios";
 
 export default function Dashboard() {
-  const [data, setData] = useState(null);
+  const [user, setUser] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      window.location.href = "/login";
-      return;
-    }
-
-    const fetchData = async () => {
+    const fetchUser = async () => {
       try {
-        const res = await axios.get("/api/protected", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setData(res.data);
+        const res = await axios.get("/api/v1/users/me", { withCredentials: true });
+        setUser(res.data.user);
       } catch (err) {
-        setError(
-          err.response?.data?.message || "Failed to load protected data"
-        );
+        setError(err.response?.data?.message || "Failed to load user data");
+        window.location.href = "/login"; // redirect if unauthorized
       }
     };
-
-    fetchData();
+    fetchUser();
   }, []);
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
+  const logout = async () => {
+    try {
+      await axios.post("/api/v1/users/logout", {}, { withCredentials: true });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      window.location.href = "/login";
+    }
   };
 
   return (
     <Container className="mt-5">
       <h3>Dashboard</h3>
       {error && <Alert variant="danger">{error}</Alert>}
-      {data ? (
-        <pre>{JSON.stringify(data, null, 2)}</pre>
+      {user ? (
+        <pre>{JSON.stringify(user, null, 2)}</pre>
       ) : (
-        <p>Loading protected data...</p>
+        <p>Loading user data...</p>
       )}
       <Button variant="secondary" onClick={logout}>
         Logout
