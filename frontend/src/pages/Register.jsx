@@ -13,7 +13,7 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("/api/register", form);
+      const res = await axios.post("/api/v1/users/register", form);
       setMessage(res.data.message || "Registered successfully!");
       setError("");
     } catch (err) {
