@@ -1,11 +1,19 @@
-import dotenv from "dotenv";
-dotenv.config({
-  path: ".env",
-});
+import "dotenv/config";
 import { app } from "./app.js";
+import { AppDataSource } from "./db/data-source.js";
 
 const port = process.env.PORT || 3000;
 
-app.listen(port, () => {
-  console.log(`server is running on port: ${port}`);
-});
+try {
+  // Initialize database connection
+  await AppDataSource.initialize();
+  console.log("Database connected successfully");
+
+  // Start Express server
+  app.listen(port, () => {
+    console.log(`Server is running on port: ${port}`);
+  });
+} catch (error) {
+  console.error("Failed to connect to the database:", error);
+  process.exit(1); // exit if DB connection fails
+}
